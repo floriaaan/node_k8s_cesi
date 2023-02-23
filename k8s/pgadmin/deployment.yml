@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin
+  namespace: node-k8s
+spec:
+  selector:
+   matchLabels:
+    app: pgadmin
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      containers:
+        - name: pgadmin
+          image: dpage/pgadmin4
+          env:
+            - name: PGADMIN_DEFAULT_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  name: pgadmin-configmap
+                  key: pgadmin-user
+            - name: PGADMIN_DEFAULT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pgadmin-secret
+                  key: pgadmin-pass
+            - name: PGADMIN_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: pgadmin-configmap
+                  key: pgadmin-port
+          ports:
+            - containerPort: 80
+              name: pgadminport
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+        
