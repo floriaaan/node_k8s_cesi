@@ -20,8 +20,21 @@ spec:
             memory: "128Mi"
             cpu: "200m"
         env:
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: pg-user
           - name: POSTGRES_PASSWORD
-            value: "YOUR_POSTGRES_PASSWORD"
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: pg-pass
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-configmap
+                key: pg-name
         ports:
         - containerPort: 5432
         volumeMounts:

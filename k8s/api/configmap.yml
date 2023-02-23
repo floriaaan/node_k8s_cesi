@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-configmap
+  namespace: node-k8s
+  labels:
+    app: api
+data:
+  port: "3000"
+  db_host: "postgres"
+  db_name: "mydb"
+  db_dialect: "postgres"
+  db_port: "5432"
+  access_token_expiry: "15m"
+  refresh_token_expiry: "7d"
+  refresh_token_cookie_name: "jid"
