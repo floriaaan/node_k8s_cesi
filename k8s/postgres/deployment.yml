@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: node-k8s
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15.2
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        env:
+          - name: POSTGRES_PASSWORD
+            value: "YOUR_POSTGRES_PASSWORD"
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-volume
+      volumes:
+        - name: postgres-volume
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
