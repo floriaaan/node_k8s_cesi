@@ -145,6 +145,10 @@ resource "azurerm_container_group" "adminer" {
       port     = 8080
       protocol = "TCP"
     }
+
+    environment_variables = {
+      "ADMINER_DEFAULT_SERVER" = azurerm_postgresql_server.pg-fleroux.fqdn
+    }
   }
 
   # même si le container pgadmin n'est pas dépendant de postgres, il parait logique de dépendre de la création du serveur postgres
