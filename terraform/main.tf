@@ -41,7 +41,10 @@ resource "azurerm_postgresql_server" "pg-fleroux" {
   administrator_login          = data.azurerm_key_vault_secret.database-login.value
   administrator_login_password = data.azurerm_key_vault_secret.database-password.value
   version                      = "11"
-  ssl_enforcement_enabled      = true
+
+  ssl_enforcement_enabled      = false
+  ssl_minimal_tls_version_enforced = "TLSEnforcementDisabled"
+  
 }
 
 resource "azurerm_postgresql_database" "pgdb-fleroux" {
@@ -102,8 +105,8 @@ resource "azurerm_container_group" "pgadmin" {
   container {
     name   = "pgadmin"
     image  = "dpage/pgadmin4:latest"
-    cpu    = "1"
-    memory = "2"
+    cpu    = "0.5"
+    memory = "1.5"
 
     ports {
       port     = 80
@@ -113,6 +116,34 @@ resource "azurerm_container_group" "pgadmin" {
     environment_variables = {
       "PGADMIN_DEFAULT_EMAIL"    = data.azurerm_key_vault_secret.pgadmin-login.value
       "PGADMIN_DEFAULT_PASSWORD" = data.azurerm_key_vault_secret.pgadmin-password.value
+    }
+  }
+
+  # même si le container pgadmin n'est pas dépendant de postgres, il parait logique de dépendre de la création du serveur postgres
+  depends_on = [
+    azurerm_postgresql_server.pg-fleroux,
+  ]
+
+
+}
+
+resource "azurerm_container_group" "adminer" {
+  name                = "aci-adminer-${var.project_name}${var.environnment_suffix}"
+  location            = var.location
+  resource_group_name = data.azurerm_resource_group.rg-fleroux.name
+  ip_address_type     = "Public"
+  dns_name_label      = "aci-adminer-${var.project_name}${var.environnment_suffix}"
+  os_type             = "Linux"
+
+  container {
+    name   = "adminer"
+    image  = "adminer:latest"
+    cpu    = "0.5"
+    memory = "1.5"
+
+    ports {
+      port     = 8080
+      protocol = "TCP"
     }
   }
 
